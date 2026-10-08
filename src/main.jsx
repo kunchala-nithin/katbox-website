@@ -47,26 +47,6 @@ const apkUrl =
 
 const PLAY_STORE_LIVE = false;
 
-const getApiBaseUrl = () => {
-  const configuredUrl = String(import.meta.env.VITE_API_URL || '').trim();
-
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, '');
-  }
-
-  if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
-    return 'http://localhost:4000';
-  }
-
-  if (typeof window !== 'undefined' && window.location?.hostname === '127.0.0.1') {
-    return 'http://localhost:4000';
-  }
-
-  throw new Error(
-    'Katbox API URL is not configured. Set VITE_API_URL to your production backend URL.'
-  );
-};
-
 /* =========================================================
    EXPLORE KATBOX — SERVICE CARDS
    ========================================================= */
@@ -998,70 +978,726 @@ function ComingSoonModal({ open, onClose }) {
   );
 }
 
-/* =========================
-   Join Success Card (premium)
-   Shown after a successful join submission.
-========================= */
-function JoinSuccessCard({ role, firstName, onReset }) {
-  const isChef = role === 'chef';
+/* =========================================================
+   LEGAL PAGES
+   ========================================================= */
+const LEGAL_LAST_UPDATED = '6 October 2026';
 
-  const title = isChef
-    ? `Thank you, ${firstName}!`
-    : `Welcome to Katbox, ${firstName}!`;
+const KATBOX_LEGAL = {
+  enterprise: 'KATBOX',
+  owner: 'Kunchala Sree Nithin',
+  role: 'Proprietor',
+  udyam: 'UDYAM-TS-20-0219090',
+  businessType: 'Proprietary / Sole Proprietorship',
+  enterpriseType: 'Micro Enterprise',
+  incorporationDate: '22 September 2026',
+  address: 'Flat/Door No. 401, Sri Sai Nilayam, Block 1, Vinayaka Nagar, Road No. 1, Nizampet Village, Hyderabad, Telangana – 500090, India',
+  email: 'katbox.in@gmail.com',
+  phone: '+91 9133450555',
+};
 
-  const subtitle = isChef
-    ? 'Our Katbox chef team will call you shortly to guide you through the onboarding.'
-    : 'Our Katbox team will call you shortly to confirm your details and get you started.';
+const legalContent = {
+  privacy: {
+    path: '/privacy-policy',
+    label: 'Privacy Policy',
+    title: 'Your information deserves careful handling.',
+    intro:
+      'This Privacy Policy explains how KATBOX, operated as a sole proprietorship by Kunchala Sree Nithin, collects, uses, shares, stores and protects personal information when you use the Katbox website, mobile application, marketplace and related services.',
+    sections: [
+      {
+        title: '1. Data Fiduciary / Privacy Contact',
+        body: [
+          `For privacy and personal-data questions, the relevant contact is ${KATBOX_LEGAL.owner}, Proprietor of ${KATBOX_LEGAL.enterprise}. Katbox is currently a proprietary micro enterprise registered under Udyam Registration Number ${KATBOX_LEGAL.udyam}. The Udyam registration records Katbox as a proprietary enterprise and identifies its official enterprise address and contact details.`,
+          `Privacy contact: ${KATBOX_LEGAL.email} | ${KATBOX_LEGAL.phone}.`,
+          'This policy applies to the Katbox website, mobile application and services together. It does not replace the privacy notices of independent third-party services that process information directly under their own terms.'
+        ]
+      },
+      {
+        title: '2. Information we collect',
+        body: [
+          'Customer account information may include your name, mobile number and email address. If you use Google sign-in through Clerk, authentication information is processed through that authentication service; Katbox does not need to collect a separate Google password.',
+          'Order and service information may include selected chef, food items, quantities, order status, delivery address, delivery instructions, special instructions, order history, cancellation/refund information and communications relating to the order.',
+          'Payment and verification information may include payment status, transaction reference, UTR/reference number and other limited payment metadata needed to verify a payment. During Katbox’s initial testing phase, customers may pay through a UPI flow and submit a UTR/reference number for manual admin verification. Katbox does not intentionally collect or store full card numbers, CVV values, banking passwords or UPI PINs.',
+          'Chef onboarding information may include name, mobile number, email, address, identity/KYC documents, FSSAI registration or licence information, bank-account details for settlements, menu information and food/business photographs.',
+          'Information you voluntarily send to Katbox may include support emails, complaint evidence, photographs, reviews, ratings, feedback and other information needed to resolve an issue.',
+          'Katbox currently states that it does not intentionally collect device information, profile photographs or a separate copy of Google-account profile information as a routine account-data field. Technical logs may nevertheless be generated by hosting, security or third-party infrastructure as described in their own policies.'
+        ]
+      },
+      {
+        title: '3. How we use personal information',
+        body: [
+          'We use information to create and authenticate accounts; accept, verify and fulfil orders; connect customers with chefs; coordinate delivery; process cancellations and refunds; verify UPI/transaction references during the testing phase; calculate chef settlements and marketplace commissions; provide customer support; investigate complaints; maintain food-safety and marketplace records; prevent fraud and misuse; protect the security of the platform; improve our services; and comply with legal or regulatory obligations.',
+          'We may also use information to send service messages such as order confirmations, delivery updates, account notices and support communications. Promotional communications will be handled in accordance with applicable law and the choices available to you.'
+        ]
+      },
+      {
+        title: '4. Legal bases, consent and applicable data-protection law',
+        body: [
+          'Katbox intends to process personal data only for specified and reasonably necessary purposes, including providing requested services, complying with legal obligations, protecting the platform and acting on permissions or consent where required. Where applicable data-protection law gives you rights relating to consent, access, correction, erasure, grievance redressal or withdrawal, Katbox will handle those requests subject to the law and any information that must lawfully be retained.',
+          'Katbox will update its privacy practices as India’s data-protection framework, including the Digital Personal Data Protection Act, 2023 and applicable rules or commencement provisions, becomes applicable to the relevant processing.'
+        ]
+      },
+      {
+        title: '5. When information is shared',
+        body: [
+          'Katbox may share only the information reasonably needed for a service with the relevant home chef, food business, delivery personnel or delivery partner, payment/verification provider, hosting and technology provider, customer-support provider, professional adviser or other service provider acting for Katbox.',
+          'For example, a chef may receive the customer name, delivery information, order details and special instructions needed to prepare and fulfil an order. Delivery personnel may receive the delivery information needed to complete the delivery.',
+          'Information may also be disclosed where required by law, court order, governmental request, regulatory process, fraud investigation or to protect users, Katbox or the public from unlawful activity or security threats.',
+          'Katbox does not sell personal information to third parties for their independent advertising purposes.'
+        ]
+      },
+      {
+        title: '6. Third-party technology and service providers',
+        body: [
+          'Katbox’s technology stack may include MongoDB for database services, Cloudinary for media storage/delivery, Render for hosting, Clerk for authentication including Google sign-in, Expo-related mobile technology, and other infrastructure or monitoring services used to operate the application.',
+          'Katbox may introduce Cashfree or another payment processor for online payments in the future. When a third-party payment provider is used, payment information may be processed directly by that provider under its own terms and privacy policy. Katbox does not control independent third-party privacy practices.'
+        ]
+      },
+      {
+        title: '7. Food-safety and seller information',
+        body: [
+          'Katbox may collect and display food-business information such as a chef’s FSSAI registration/licence details and other information required for lawful marketplace listing. Chefs are responsible for providing accurate, current and valid regulatory information and for complying with applicable food-safety requirements.',
+          'Where food-safety information is required to be displayed to customers, Katbox may make it visible on the relevant chef or food listing.'
+        ]
+      },
+      {
+        title: '8. Cookies, local storage and similar technologies',
+        body: [
+          'The website or app may use essential storage, cookies, session mechanisms and similar technologies needed for authentication, navigation, security and basic functionality. If non-essential analytics, advertising or tracking technologies are introduced, Katbox will provide the notices and choices required by applicable law.'
+        ]
+      },
+      {
+        title: '9. Data retention',
+        body: [
+          'We retain personal information only for as long as reasonably necessary for the purpose for which it was collected, to provide the service, maintain transaction and settlement records, resolve disputes, investigate fraud or food-safety complaints, enforce agreements and comply with legal or regulatory requirements.',
+          'When information is no longer required and there is no legal reason to retain it, Katbox may delete, anonymise or securely dispose of it, subject to technical backups and retention requirements of service providers.'
+        ]
+      },
+      {
+        title: '10. Security and payment safety',
+        body: [
+          'Katbox uses reasonable technical and organisational safeguards appropriate to its stage and the nature of the information processed. However, no website, mobile application, database or internet transmission can be guaranteed to be completely secure.',
+          'Katbox will never ask a customer to disclose a UPI PIN, card CVV, banking password or authentication secret by email or support message. Customers should not share such credentials with Katbox staff, chefs or delivery personnel.'
+        ]
+      },
+      {
+        title: '11. Your privacy requests and grievance process',
+        body: [
+          'Depending on applicable law, you may contact Katbox to ask about personal information associated with your account, request correction of inaccurate information, request deletion where legally available, raise a grievance, or exercise other applicable data-protection rights.',
+          `Send requests to ${KATBOX_LEGAL.email}. To protect accounts, Katbox may ask for reasonable information to verify that the request is being made by the relevant person. Legal, accounting, transaction, fraud-prevention and other records may need to be retained where required or permitted by law.`,
+          `General customer/grievance contact: ${KATBOX_LEGAL.owner}, Proprietor, Katbox | ${KATBOX_LEGAL.email} | ${KATBOX_LEGAL.phone}.`
+        ]
+      },
+      {
+        title: '12. Children',
+        body: [
+          'Katbox does not intentionally design its services to collect personal information from children in circumstances where a legally required consent is unavailable. If you believe a child has provided personal information improperly, contact us so that we can review the information and take appropriate action under applicable law.'
+        ]
+      },
+      {
+        title: '13. International processing and service-provider locations',
+        body: [
+          'Some technology or infrastructure providers used by Katbox may process or store information in locations outside Telangana or India. Where such processing occurs, Katbox will take the steps required by applicable law and the relevant contractual or technical arrangements.'
+        ]
+      },
+      {
+        title: '14. Changes to this policy',
+        body: [
+          'Katbox may update this policy when its services, technology, business model or legal obligations change. Material changes will be reflected by updating this page and its last-updated date. Continued use after an updated policy takes effect will be subject to the updated policy to the extent permitted by law.'
+        ]
+      }
+    ]
+  },
+  terms: {
+    path: '/terms-and-conditions',
+    label: 'Terms & Conditions',
+    title: 'The rules behind the Katbox marketplace.',
+    intro:
+      'These Terms & Conditions apply to the Katbox website, mobile application and related marketplace services. They are designed for Katbox’s current early-stage marketplace model and may be supplemented by order-specific terms.',
+    sections: [
+      {
+        title: '1. Business identity and scope',
+        body: [
+          `Katbox is the trading name of KATBOX, currently operated as a proprietary/sole-proprietorship enterprise by ${KATBOX_LEGAL.owner}. Katbox has Udyam Registration Number ${KATBOX_LEGAL.udyam} and is currently recorded as a Micro Enterprise. Its Udyam certificate identifies the enterprise as a proprietary organisation and records its official business address in Hyderabad, Telangana.`,
+          'Katbox operates a digital marketplace that connects customers with independent home chefs and food businesses. Except where expressly stated otherwise for a specific service, Katbox does not itself prepare the food.'
+        ]
+      },
+      {
+        title: '2. Acceptance and eligibility',
+        body: [
+          'By accessing or using Katbox, you agree to these Terms, the Privacy Policy and the Refund & Cancellation Policy. If you do not agree, do not use the service.',
+          'Katbox may be used by customers of any age subject to applicable law. Where a user is not legally capable of entering a binding contract, use of paid services must be authorised or supervised by a parent or legal guardian where required by law.'
+        ]
+      },
+      {
+        title: '3. Katbox is a marketplace facilitator',
+        body: [
+          'Katbox provides technology and marketplace services for discovering chefs, menus and food-related services, submitting orders or bookings, communicating order information and coordinating fulfilment. The independent chef remains responsible for the food it prepares, its ingredients, preparation, packaging, food-safety compliance, listing accuracy and other seller obligations.',
+          'Nothing in these Terms is intended to exclude consumer rights or remedies that cannot lawfully be excluded.'
+        ]
+      },
+      {
+        title: '4. Chef eligibility and FSSAI compliance',
+        body: [
+          'Katbox requires chefs to provide onboarding information, including identity information, contact details, address, FSSAI information, bank details, menu information and food photographs. Katbox may verify submitted information before activation and may request updated documents at any time.',
+          'A chef must maintain any FSSAI registration/licence and other approvals applicable to the chef’s activity. A chef must not list or sell food through Katbox while a required licence/registration is expired, suspended, cancelled or otherwise invalid.',
+          'Katbox may suspend or delist a chef or food item where food-safety, regulatory, customer-safety or authenticity concerns arise.'
+        ]
+      },
+      {
+        title: '5. Listings, photos, menus and availability',
+        body: [
+          'Chefs are responsible for accurate descriptions, prices, portions, ingredients, dietary/allergen information, preparation times, availability and photographs supplied to Katbox. Katbox may correct formatting, remove misleading content or require changes before or after publication.',
+          'Food photographs are intended to represent the product but actual appearance, portioning and packaging may vary. A listing must not use misleading images or claims.'
+        ]
+      },
+      {
+        title: '6. Orders and acceptance',
+        body: [
+          'Submitting an order is a request to purchase. An order becomes accepted when Katbox and/or the relevant chef confirms it through the platform or the applicable order workflow. Katbox may refuse, cancel or delay an order for reasons including unavailability, payment verification failure, suspected fraud, food-safety concerns, operational limitations or legal requirements.',
+          'For the current testing flow, customers may be asked to pay using the displayed UPI method and enter the UTR/reference number. The order may remain pending until an administrator verifies the payment. Katbox may reject a UTR that cannot be reasonably verified.'
+        ]
+      },
+      {
+        title: '7. Quick Bites and delivery estimates',
+        body: [
+          'Quick Bites are designed around fresh preparation after ordering. Katbox currently uses a target of cooking and delivery within approximately 75 minutes for the Quick Bites service. The actual delivery time may vary because of preparation time, traffic, weather, customer availability, delivery-partner availability and other operational conditions.',
+          'Any delivery time shown in the app or website is an estimate unless Katbox expressly states that a particular time is guaranteed. A displayed delivery slot does not create a promise that cannot reasonably be affected by events outside Katbox’s control.'
+        ]
+      },
+      {
+        title: '8. Meal boxes, homemade foods and catering',
+        body: [
+          'Meal boxes may operate on single-meal, weekly, flexible-day or other plan structures shown at the time of purchase. The exact plan, schedule, price and cancellation terms displayed at checkout form part of the order.',
+          'Homemade-food orders, including items such as pickles, podis, pindi vantalu and sweets, may have different preparation, shelf-life and dispatch requirements. Customers should follow storage and consumption instructions supplied by the chef.',
+          'Catering and large-event orders require advance booking, advance payment and chef confirmation. The booking may have a specific cancellation deadline and service terms shown or agreed before payment. If the booking-specific terms differ from the ordinary food-order rules, the booking-specific terms apply to that booking to the extent permitted by law.'
+        ]
+      },
+      {
+        title: '9. Hire-a-Chef',
+        body: [
+          'Where Katbox offers a Hire-a-Chef service, Katbox may facilitate the customer’s request, match or introduce a chef, coordinate booking information and facilitate payment through Katbox. The chef remains responsible for the actual cooking/service obligations agreed for the booking. The booking may have additional service-specific terms, timing, cancellation rules and safety requirements.'
+        ]
+      },
+      {
+        title: '10. Prices, delivery charges and taxes',
+        body: [
+          'Prices and applicable delivery/service charges are shown before an order is confirmed. Delivery charges may vary based on distance, service type, availability and other operational factors and will be disclosed where applicable.',
+          `Katbox is currently not GST registered according to the business information provided for this website. This statement is not a representation that GST or any other tax can never apply. If Katbox becomes registered or a tax becomes applicable to a particular transaction, the applicable tax will be charged or accounted for as required by law and disclosed where required.`,
+          'Customers are responsible for reviewing the final order amount before confirming payment.'
+        ]
+      },
+      {
+        title: '11. Chef commission and promotional commission-free orders',
+        body: [
+          'Katbox currently provides a commission incentive for newly joined chefs. The first three orders in a chef’s own chronological order sequence are commission-free at 0%.',
+          'After the first three orders, the current pattern is: orders #4–#7 carry an 18% commission; order #8 is commission-free; orders #9–#12 carry an 18% commission; order #13 is commission-free; orders #14–#17 carry an 18% commission; order #18 is commission-free; and the pattern continues so that, after the first three free orders, every fifth order in the chef’s sequence is commission-free and the other orders carry an 18% commission, unless Katbox announces a different commercial offer.',
+          'The chef’s applicable delivery-related charges and any other agreed marketplace charges are handled according to the order and settlement record. The detailed settlement calculation may be shown to the chef in the applicable dashboard or settlement communication.'
+        ]
+      },
+      {
+        title: '12. Payments and future payment processors',
+        body: [
+          'Katbox currently uses a manual UPI/UTR verification workflow for its initial testing stage. Katbox may later integrate Cashfree or another payment processor for digital payments. When a payment processor is used, the processor’s own terms, privacy policy and payment rules also apply.',
+          'Customers must not submit false UTRs, fraudulent payment screenshots, unauthorised payment claims or another person’s payment information. Katbox may suspend an account and investigate suspected payment fraud.'
+        ]
+      },
+      {
+        title: '13. Delivery',
+        body: [
+          'Delivery may be performed by Katbox personnel and/or independent third-party delivery partners. Customers must provide a correct address, reachable phone number and reasonable access instructions.',
+          'Where delivery cannot be completed because the customer supplied an incorrect address, is unavailable, refuses a valid order or otherwise prevents reasonable delivery, refund eligibility may be affected as described in the Refund & Cancellation Policy.'
+        ]
+      },
+      {
+        title: '14. Food safety, allergens and customer responsibility',
+        body: [
+          'Customers must review available ingredient, allergen, dietary and preparation information and communicate relevant requirements before ordering. Katbox cannot guarantee an allergen-free environment unless a specific listing expressly makes such a representation and the chef can substantiate it.',
+          'Customers should follow storage, reheating and consumption instructions. Food should not be consumed when its packaging or condition reasonably indicates contamination or unsafe handling. Food-safety concerns should be reported immediately.'
+        ]
+      },
+      {
+        title: '15. Cancellation and refunds',
+        body: [
+          'Before a chef accepts an order, a customer may generally request cancellation for a full eligible refund. After chef acceptance but before preparation begins, cancellation is permitted under the applicable order workflow. Once food preparation has started, cancellation generally does not qualify for a refund because perishable ingredients, labour and preparation have been committed, subject to applicable law and exceptional resolution by Katbox.',
+          'If Katbox cannot arrange delivery and the order cannot reasonably be fulfilled, Katbox intends to provide a full refund of the eligible amount paid for that order. If a chef cancels an accepted order, the customer will generally receive a full refund of the eligible amount paid.'
+        ]
+      },
+      {
+        title: '16. Complaints and evidence',
+        body: [
+          'For missing, incorrect, damaged or quality-related issues, Katbox may ask the customer to provide photographs or video evidence by email, together with the order ID and relevant details. Katbox and the chef may jointly review the evidence before deciding on a replacement, partial refund, full refund, credit or other resolution.',
+          'Food-safety complaints may result in the chef being temporarily suspended, the listing being taken offline, evidence being requested, an investigation being conducted, FSSAI documentation being reviewed, and/or the matter being escalated where appropriate.'
+        ]
+      },
+      {
+        title: '17. Promotions, coupons and credits',
+        body: [
+          'Coupons, referral benefits, promotional credits and other offers may have specific eligibility, expiry and usage conditions. Unless required by law or expressly stated otherwise, promotional credits are not refundable, transferable or exchangeable for cash.',
+          'Katbox may cancel or reverse a promotion where it was obtained through abuse, fraud, multiple accounts or a technical error.'
+        ]
+      },
+      {
+        title: '18. Customer reviews and user content',
+        body: [
+          'Customers may be able to submit ratings, reviews, photographs or other content. Content must be truthful, relevant, lawful and based on a genuine experience.',
+          'Katbox may remove or restrict content that is fraudulent, abusive, threatening, defamatory, discriminatory, unlawful, misleading, spam, unrelated to the service, or otherwise harmful to users or the platform. Katbox does not promise that every review is independently verified.'
+        ]
+      },
+      {
+        title: '19. Intellectual property and chef content licence',
+        body: [
+          'Katbox’s website, application, branding, logos, software, design, text and original materials are owned by or licensed to Katbox and may not be copied, modified, distributed or commercially exploited without permission.',
+          'A chef grants Katbox a non-exclusive, worldwide, royalty-free licence, for the duration of the chef’s participation and a reasonable period thereafter for archival/marketing purposes, to host, reproduce, display, crop, resize and otherwise use the chef’s submitted business name, logo, food photographs, menu descriptions and related listing content for operating, promoting and marketing Katbox, including on the Katbox app, website, social media and advertising. Chefs do not grant rights in videos because Katbox’s current chef onboarding does not require chef-uploaded videos.'
+        ]
+      },
+      {
+        title: '20. Prohibited conduct',
+        body: [
+          'Users must not misuse the platform, create fraudulent accounts, submit false payment information, manipulate reviews, harass chefs/customers/delivery personnel, scrape or reverse engineer the platform, upload unlawful content, attempt unauthorised access, interfere with platform security, or use Katbox for an unlawful purpose.'
+        ]
+      },
+      {
+        title: '21. Suspension and termination',
+        body: [
+          'Katbox may suspend, restrict or terminate access where it reasonably believes that a user or chef has violated these Terms, created a safety or fraud risk, provided false information, failed regulatory requirements, abused promotions, or otherwise threatened the integrity of the marketplace. Where appropriate and legally required, Katbox may provide notice or an opportunity to resolve the issue.',
+          'Termination does not remove rights or obligations that by their nature should survive termination, including payment obligations, confidentiality, intellectual-property rights, dispute provisions and lawful record-retention requirements.'
+        ]
+      },
+      {
+        title: '22. Disclaimers and limitation of liability',
+        body: [
+          'Katbox aims to provide a reliable marketplace but does not guarantee uninterrupted availability, error-free listings, continuous chef availability, exact delivery times or the suitability of a particular food for every customer. Independent chefs are responsible for their own food and services.',
+          'To the maximum extent permitted by law, Katbox will not be responsible for indirect, incidental, special or consequential loss arising from a user’s use of the platform. Nothing in these Terms excludes or limits liability that cannot legally be excluded or limits consumer rights that cannot lawfully be waived.'
+        ]
+      },
+      {
+        title: '23. Indemnity',
+        body: [
+          'To the extent permitted by applicable law, a user or chef may be responsible for losses reasonably arising from their fraud, unlawful conduct, intentional misuse of the platform, infringement of third-party rights, or material breach of these Terms. This clause does not create liability beyond what the law permits.'
+        ]
+      },
+      {
+        title: '24. Force majeure',
+        body: [
+          'Katbox will not be responsible for delay or failure caused by events reasonably outside its control, including severe weather, natural disasters, strikes, civil disturbance, government restrictions, public-health emergencies, network or infrastructure outages, payment-system failures, delivery disruptions or other events of force majeure. Where an order cannot be fulfilled, Katbox will take reasonable steps to communicate and provide the applicable cancellation/refund resolution.'
+        ]
+      },
+      {
+        title: '25. Governing law and jurisdiction',
+        body: [
+          'These Terms are governed by the laws of India. Subject to mandatory consumer-protection rights and the jurisdiction of forums or authorities that cannot lawfully be excluded, disputes will be subject to the competent courts and authorities having jurisdiction in Hyderabad, Telangana.'
+        ]
+      },
+      {
+        title: '26. Changes to these Terms',
+        body: [
+          'Katbox may update these Terms as the platform, payment methods, services or legal requirements change. The updated version will be posted on this page with a revised date. Continued use after the effective date will be subject to the updated Terms to the extent permitted by law.'
+        ]
+      }
+    ]
+  },
+  refund: {
+    path: '/refund-cancellation-policy',
+    label: 'Refund & Cancellation Policy',
+    title: 'Clear rules when plans change.',
+    intro:
+      'Food is perishable and many Katbox orders are prepared specifically for a customer. This policy explains the current cancellation, refund and complaint process for food orders, catering, meal plans and related services.',
+    sections: [
+      {
+        title: '1. Customer cancellation before chef acceptance',
+        body: [
+          'If a customer requests cancellation before the chef accepts the order, Katbox will generally provide a full refund of the eligible amount paid, subject to any payment-provider limitation and applicable law.'
+        ]
+      },
+      {
+        title: '2. Cancellation after chef acceptance but before preparation',
+        body: [
+          'A customer may request cancellation after chef acceptance but before preparation begins. Where the cancellation is accepted under the order workflow, Katbox will generally process a refund of the eligible amount paid.'
+        ]
+      },
+      {
+        title: '3. After food preparation has started',
+        body: [
+          'Once preparation has started, cancellation generally does not qualify for a refund because the chef may already have purchased, consumed or committed perishable ingredients, labour and packaging. Katbox may nevertheless consider exceptional refunds or credits where appropriate or where required by law.'
+        ]
+      },
+      {
+        title: '4. Katbox or chef cancellation',
+        body: [
+          'If a chef cancels an accepted order, the customer will generally receive a full refund of the eligible amount paid. If Katbox cannot arrange delivery or otherwise cannot reasonably fulfil the order, Katbox will generally provide a full refund of the eligible amount paid for that order.'
+        ]
+      },
+      {
+        title: '5. Customer unavailable or incorrect delivery information',
+        body: [
+          'Refund eligibility may be affected when delivery fails because the customer supplied an incorrect address or phone number, was unavailable for a reasonable delivery attempt, refused a valid order, or did not provide required access information. Katbox may assess the actual circumstances before deciding whether any refund is due.'
+        ]
+      },
+      {
+        title: '6. Missing, incorrect, damaged or spilled food',
+        body: [
+          'Contact Katbox as soon as reasonably possible, preferably within 24 hours of delivery, with the order ID and clear photographs or video evidence where relevant. Evidence may be sent by email to the Katbox support address. Katbox and the chef may jointly investigate and may offer a replacement, partial refund, full refund, credit or other appropriate resolution depending on the issue.'
+        ]
+      },
+      {
+        title: '7. Food quality or food-safety complaint',
+        body: [
+          'If you believe food is unsafe, contaminated or has caused an adverse reaction, stop consuming it and contact Katbox immediately. Keep the food, packaging, labels and remaining product where reasonably possible. Katbox may request evidence, temporarily suspend the chef, take the relevant listing offline, investigate the incident, request FSSAI documentation and escalate the matter to relevant authorities where appropriate.',
+          'A food-safety complaint may require additional investigation before a final refund decision. This process does not limit any legal rights available to the customer.'
+        ]
+      },
+      {
+        title: '8. Catering and large-event bookings',
+        body: [
+          'Catering and large orders require advance booking, advance payment and chef confirmation. Each booking may have a specific cancellation deadline because the chef may need to procure ingredients, reserve staff and allocate kitchen capacity. The cancellation deadline and applicable refund amount should be communicated or agreed before the booking is confirmed.',
+          'If the booking-specific cancellation terms are not separately provided, Katbox will assess the request based on preparation status, advance commitments, the time remaining before the event and applicable law.'
+        ]
+      },
+      {
+        title: '9. Meal plans and scheduled services',
+        body: [
+          'Meal-box plans may have recurring or scheduled fulfilment. The plan’s specific cancellation and refund terms shown at purchase will apply. A refund for unused future fulfilment may be considered separately from a refund for a meal already prepared or delivered.'
+        ]
+      },
+      {
+        title: '10. Hire-a-Chef bookings',
+        body: [
+          'Hire-a-Chef bookings may require advance payment and chef confirmation. The cancellation deadline and refund terms may depend on the event date, chef commitment, travel and preparation. Any booking-specific terms displayed or accepted at checkout will apply.'
+        ]
+      },
+      {
+        title: '11. Refund method and processing time',
+        body: [
+          'Once a refund is approved, Katbox will initiate it through the original payment route where reasonably possible, or through another method communicated to the customer. Banking and payment-provider processing times are outside Katbox’s direct control.',
+          'For the current manual UPI/UTR testing flow, Katbox may use the verified payment reference and available transaction records to process the applicable refund.'
+        ]
+      },
+      {
+        title: '12. Coupons and promotional credits',
+        body: [
+          'Coupons, referral benefits and promotional credits may have separate eligibility and expiry rules. Unless required by law or expressly stated otherwise, promotional value is not refundable or exchangeable for cash.'
+        ]
+      },
+      {
+        title: '13. How to submit a refund or complaint request',
+        body: [
+          `Email ${KATBOX_LEGAL.email} with your order ID, registered mobile number/email, the issue, date and time of delivery, and photographs or video evidence where relevant. For food-safety concerns, contact Katbox immediately rather than waiting for the ordinary complaint window.`,
+          `Support contact: ${KATBOX_LEGAL.phone}. Katbox may request additional information and may coordinate with the chef and delivery partner before reaching a final resolution.`
+        ]
+      }
+    ]
+  },
+  chef: {
+    path: '/chef-partner-agreement',
+    label: 'Chef Partner Agreement',
+    title: 'Chef Partner Agreement',
+    intro:
+      'This agreement is a practical onboarding template for independent home chefs joining the Katbox marketplace. A chef may accept it electronically in the Katbox onboarding flow or sign a separate copy where Katbox requires one.',
+    sections: [
+      {
+        title: '1. Parties and purpose',
+        body: [
+          `This Chef Partner Agreement ("Agreement") is between KATBOX, a proprietary/sole-proprietorship enterprise operated by ${KATBOX_LEGAL.owner} ("Katbox"), and the independent chef or food business that applies to sell through the Katbox marketplace ("Chef").`,
+          'The purpose of this Agreement is to set the commercial, food-safety, operational and content rules under which the Chef may list food and accept customer orders through Katbox.'
+        ]
+      },
+      {
+        title: '2. Independent business relationship',
+        body: [
+          'The Chef is an independent food business and is not an employee of Katbox. Nothing in this Agreement creates an employment relationship, partnership, joint venture or general agency relationship. The Chef remains responsible for its own personnel, kitchen, ingredients, equipment, statutory registrations, taxes and business expenses.',
+          'Katbox provides marketplace, technology, customer-connection and related operational services. Katbox does not own the Chef’s kitchen or employ the Chef’s cooking staff.'
+        ]
+      },
+      {
+        title: '3. Chef onboarding documents',
+        body: [
+          'Before activation, the Chef must provide accurate information requested by Katbox, which may include name, phone number, email, address, identity/KYC documentation, valid FSSAI registration/licence information, bank-account details, menu, prices and food photographs.',
+          'Katbox currently does not require a PAN field as part of its stated chef onboarding form. If tax, invoicing, regulatory or settlement requirements later require additional information, Katbox may request it.',
+          'The Chef must promptly notify Katbox of any change to its FSSAI status, bank details, address, contact details or other material information.'
+        ]
+      },
+      {
+        title: '4. FSSAI, food safety and legal compliance',
+        body: [
+          'The Chef must obtain and maintain every food-safety registration, licence, permission or approval required for its activity and must provide Katbox with accurate FSSAI information for display where required.',
+          'The Chef must follow applicable food-safety, hygiene, sanitation, labelling, allergen, packaging, storage and handling requirements. The Chef must not sell food that is unsafe, adulterated, expired, contaminated, misleadingly described or otherwise prohibited by law.',
+          'Katbox may request updated FSSAI documentation, hygiene information, product information or evidence of compliance. Katbox may suspend or delist the Chef or any food item immediately where there is a credible food-safety or regulatory concern.'
+        ]
+      },
+      {
+        title: '5. Menus, prices and product information',
+        body: [
+          'The Chef is responsible for the accuracy of menu names, descriptions, ingredients, allergen information, dietary claims, portion sizes, prices, preparation times, availability and photographs supplied to Katbox.',
+          'The Chef must not make false, misleading, unsubstantiated health, nutritional or origin claims. The Chef must promptly correct information that becomes inaccurate.'
+        ]
+      },
+      {
+        title: '6. Orders and preparation',
+        body: [
+          'The Chef must monitor orders, accept or reject them promptly, and prepare accepted orders in accordance with the listing, selected quantity, requested special instructions and agreed preparation time.',
+          'For Quick Bites, the Chef understands that the service is designed around fresh preparation after ordering and an approximate target of cooking plus delivery within 75 minutes. The Chef must not intentionally mark food as ready when it is not ready or provide false order-status information.',
+          'The Chef must package food appropriately for the product and hand it over safely to the applicable delivery person or customer according to the order workflow.'
+        ]
+      },
+      {
+        title: '7. Delivery and handover',
+        body: [
+          'Delivery may be performed by Katbox personnel or an independent delivery partner. The Chef must keep the food ready for collection at the agreed time and must package it so that reasonable transport does not compromise safety or integrity.',
+          'The Chef must cooperate with reasonable delivery investigations, including missing-item, spillage, packaging and delayed-order complaints.'
+        ]
+      },
+      {
+        title: '8. Commission and commercial terms',
+        body: [
+          'Katbox currently offers each newly joined Chef the first three orders in the Chef’s own chronological order sequence at 0% commission.',
+          'After those first three orders, the current recurring commercial pattern is 18% commission on orders #4–#7, order #8 at 0%, orders #9–#12 at 18%, order #13 at 0%, orders #14–#17 at 18%, order #18 at 0%, and so on. In other words, after the initial three free orders, every fifth order in the Chef’s sequence is commission-free and the other orders carry an 18% commission, unless Katbox and the Chef agree to a different written commercial offer.',
+          'Applicable delivery fees and any separately agreed charges are handled according to the order/settlement record. The Chef should review the settlement statement and raise any discrepancy promptly.'
+        ]
+      },
+      {
+        title: '9. Payments and settlements',
+        body: [
+          'During the initial testing stage, customers may pay through the Katbox-displayed UPI flow and an administrator may verify the UTR/reference before the order is accepted. Katbox may later introduce Cashfree or another payment processor.',
+          'Chef settlements are subject to successful customer payment, refunds, cancellations, chargebacks or payment disputes, applicable commission, delivery-related adjustments and other lawful adjustments shown in the relevant settlement record.'
+        ]
+      },
+      {
+        title: '10. Cancellations, refunds and complaints',
+        body: [
+          'The Chef agrees to follow Katbox’s then-current Refund & Cancellation Policy. Before acceptance, customers may generally receive a full eligible refund. After acceptance but before preparation, cancellation may still be allowed. Once preparation starts, refunds may be restricted because of perishable commitments, subject to applicable law.',
+          'If a customer reports missing, wrong, damaged, poor-quality or unsafe food, the Chef must cooperate with Katbox’s investigation and provide reasonable evidence, preparation details, order records and regulatory documents when requested.'
+        ]
+      },
+      {
+        title: '11. Food-safety incident response',
+        body: [
+          'If Katbox receives a credible food-safety complaint, Katbox may temporarily suspend the Chef, take the affected listing offline, request evidence and FSSAI documentation, investigate the complaint, seek information about ingredients or preparation, and take further action required to protect customers and comply with law.',
+          'The Chef must not retaliate against a customer for making a genuine complaint and must preserve relevant food, packaging, batch/ingredient or order information where reasonably necessary for an investigation.'
+        ]
+      },
+      {
+        title: '12. Chef content and marketing licence',
+        body: [
+          'The Chef grants Katbox a non-exclusive, worldwide, royalty-free licence to host, reproduce, display, crop, resize, format and use the Chef’s submitted business name, logo, food photographs, menu descriptions and related listing content to operate, advertise and market the Chef and Katbox, including on the app, website, social media and promotional materials.',
+          'The Chef confirms that it owns or has permission to use submitted content and that the content does not infringe another person’s intellectual-property or privacy rights. Katbox may remove content that is misleading, unlawful, infringing or unsuitable for the marketplace.',
+          'Katbox’s current chef onboarding does not require chef-uploaded videos; any future video/content permissions will be addressed separately if introduced.'
+        ]
+      },
+      {
+        title: '13. Customer data and confidentiality',
+        body: [
+          'The Chef may receive customer information only to the extent necessary to prepare and fulfil an order or provide the booked service. The Chef must keep customer information confidential, must not sell or reuse it for independent marketing, and must not contact customers outside the legitimate service purpose unless permitted by law and the applicable Katbox rules.',
+          'The Chef must not copy, scrape, export or retain customer lists except where reasonably necessary for lawful order records and as permitted by Katbox.'
+        ]
+      },
+      {
+        title: '14. Customer reviews and conduct',
+        body: [
+          'The Chef must not create fake reviews, offer improper incentives for reviews, threaten customers for negative feedback or manipulate ratings. The Chef may report demonstrably fraudulent or abusive content to Katbox for review.',
+          'Katbox may remove or restrict reviews/content that violate its marketplace rules or applicable law.'
+        ]
+      },
+      {
+        title: '15. Taxes and statutory obligations',
+        body: [
+          'The Chef is responsible for its own income, business, professional, food-safety, labour and tax obligations applicable to its activities. Katbox’s current GST status does not determine whether a Chef has separate tax obligations.',
+          'The Chef must provide documents required for lawful settlement, invoicing, reporting or regulatory compliance if Katbox is legally required to collect them.'
+        ]
+      },
+      {
+        title: '16. Inspection, verification and audits',
+        body: [
+          'Katbox may conduct reasonable verification of a Chef’s documents, listings, order records and food-safety information. Where legally and operationally appropriate, Katbox may request photographs, certificates, explanations or other evidence to confirm marketplace compliance.'
+        ]
+      },
+      {
+        title: '17. Suspension and termination',
+        body: [
+          'Katbox may suspend, restrict or terminate a Chef’s marketplace access for food-safety concerns, invalid FSSAI information, repeated cancellations, fraudulent transactions, misleading listings, serious customer complaints, misuse of customer information, payment fraud, abusive conduct, breach of this Agreement or other material marketplace risk.',
+          'A Chef may request termination by contacting Katbox. Existing accepted orders, customer complaints, refunds, settlement reconciliation and legal obligations may continue to be handled after termination.'
+        ]
+      },
+      {
+        title: '18. Indemnity and responsibility',
+        body: [
+          'To the extent permitted by law, the Chef is responsible for claims, losses or costs arising from the Chef’s food preparation, regulatory non-compliance, unsafe food, misleading product information, infringement of third-party rights, fraud, unlawful conduct or material breach of this Agreement. Nothing here removes liability that cannot legally be excluded.'
+        ]
+      },
+      {
+        title: '19. No guaranteed order volume',
+        body: [
+          'Katbox does not guarantee any minimum number of orders, sales, revenue, customer traffic or earnings. Marketplace visibility may depend on location, customer demand, availability, ratings, compliance and other operational factors.'
+        ]
+      },
+      {
+        title: '20. Changes to this Agreement',
+        body: [
+          'Katbox may update commercial or operational terms when the platform evolves. Material changes affecting commission, fees or significant obligations should be communicated through the applicable onboarding, dashboard, email or other reasonable channel. Continued participation after an effective change may constitute acceptance to the extent permitted by law.'
+        ]
+      },
+      {
+        title: '21. Governing law and dispute resolution',
+        body: [
+          'This Agreement is governed by the laws of India. Subject to mandatory legal rights and forums that cannot be excluded, disputes will be subject to the competent courts and authorities having jurisdiction in Hyderabad, Telangana.'
+        ]
+      },
+      {
+        title: '22. Acceptance',
+        body: [
+          'By checking an acceptance box, signing this Agreement, or otherwise completing Katbox’s chef onboarding flow where electronic acceptance is provided, the Chef confirms that the information supplied is accurate, that the Chef has read and understood this Agreement and that the Chef agrees to comply with it and the applicable Katbox policies.',
+          `Katbox legal contact: ${KATBOX_LEGAL.owner}, Proprietor | ${KATBOX_LEGAL.email} | ${KATBOX_LEGAL.phone}.`
+        ]
+      }
+    ]
+  }
+};
 
-  const eyebrow = isChef ? 'CHEF APPLICATION RECEIVED' : 'YOU’RE ON THE LIST';
+function LegalPage({ type }) {
+  const page = legalContent[type];
+
+  useEffect(() => {
+    document.title = `${page.label} | Katbox`;
+    window.scrollTo(0, 0);
+  }, [page.label]);
+
+  const legalLinks = [
+    ['privacy', 'Privacy Policy', '/privacy-policy'],
+    ['terms', 'Terms & Conditions', '/terms-and-conditions'],
+    ['refund', 'Refund & Cancellation', '/refund-cancellation-policy'],
+    ['chef', 'Chef Partner Agreement', '/chef-partner-agreement'],
+  ];
 
   return (
-    <div className="join-success" role="status" aria-live="polite">
-      <div className="join-success-glow" aria-hidden="true" />
+    <div className="site legal-site">
+      <header className="navbar legal-navbar">
+        <a className="brand legal-brand" href="/" aria-label="Katbox home">
+          <span className="brand-text legal-brand-text">Katbox</span>
+        </a>
+        <nav className="nav-links legal-nav-links">
+          <a href="/">Home</a>
+          <a href="/#services">Explore</a>
+          <a href="/#how-it-works">How it works</a>
+          <a href="/#join">For Chefs</a>
+        </nav>
+        <div className="nav-actions">
+          <a className="primary-button small" href="/#download">Get the app <span>→</span></a>
+        </div>
+      </header>
 
-      <div className="join-success-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="26" height="26">
-          <path
-            d="M5 13l4 4L19 7"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
+      <main className="legal-main">
+        <section className="legal-hero">
+          <div className="legal-hero-inner">
+            <a className="legal-back" href="/">← Back to Katbox</a>
+            <span className="section-kicker">KATBOX LEGAL</span>
+            <h1>{page.title}</h1>
+            <p>{page.intro}</p>
+            <div className="legal-meta">
+              <span>Last updated: {LEGAL_LAST_UPDATED}</span>
+              <span>Hyderabad, Telangana, India</span>
+            </div>
+          </div>
+        </section>
 
-      <span className="join-success-eyebrow">{eyebrow}</span>
+        <section className="legal-layout">
+          <aside className="legal-sidebar">
+            <span>Legal documents</span>
+            {legalLinks.map(([key, label, href]) => (
+              <a key={key} className={type === key ? 'active' : ''} href={href}>{label}</a>
+            ))}
+            <a href={`mailto:${KATBOX_LEGAL.email}`}>Contact Katbox</a>
+          </aside>
 
-      <h3 className="join-success-title">{title}</h3>
+          <article className="legal-document">
+            {page.sections.map((section) => (
+              <section className="legal-section" key={section.title}>
+                <h2>{section.title}</h2>
+                {section.body?.map((paragraph, index) => (
+                  <p key={`${section.title}-${index}`}>{paragraph}</p>
+                ))}
+                {section.bullets && (
+                  <ul>
+                    {section.bullets.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                )}
+              </section>
+            ))}
 
-      <p className="join-success-subtitle">{subtitle}</p>
+            <section className="legal-section legal-business-details">
+              <h2>Katbox legal & contact details</h2>
+              <div className="legal-detail-grid">
+                <div><span>Enterprise</span><strong>{KATBOX_LEGAL.enterprise}</strong></div>
+                <div><span>Proprietor</span><strong>{KATBOX_LEGAL.owner}</strong></div>
+                <div><span>Structure</span><strong>{KATBOX_LEGAL.businessType}</strong></div>
+                <div><span>Udyam</span><strong>{KATBOX_LEGAL.udyam}</strong></div>
+                <div><span>Email</span><strong>{KATBOX_LEGAL.email}</strong></div>
+                <div><span>Phone</span><strong>{KATBOX_LEGAL.phone}</strong></div>
+                <div className="full"><span>Official enterprise address</span><strong>{KATBOX_LEGAL.address}</strong></div>
+              </div>
+              <p className="legal-small-note">Udyam/MSME registration is an enterprise registration and does not by itself represent GST registration, FSSAI licensing, incorporation as a company, or any other regulatory approval.</p>
+            </section>
 
-      <div className="join-success-meta">
-        <span className="join-success-pill">
-          <span aria-hidden="true">📞</span>
-          Our Katbox team will call you
-        </span>
-        <span className="join-success-pill">
-          <span aria-hidden="true">⚡</span>
-          Usually within 24 hours
-        </span>
-      </div>
+            <div className="legal-contact-card">
+              <span className="legal-contact-icon">✦</span>
+              <div>
+                <strong>Need help with an order, privacy request, grievance or chef-partner question?</strong>
+                <p>Email <a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a> or call {KATBOX_LEGAL.phone}.</p>
+              </div>
+            </div>
 
-      <button
-        type="button"
-        className="join-success-reset"
-        onClick={onReset}
-      >
-        Submit another response
-        <span aria-hidden="true">→</span>
-      </button>
+            <p className="legal-disclaimer">
+              This website text is a comprehensive operational draft prepared from the information supplied for Katbox and publicly available Indian regulatory materials. It is not a substitute for advice from a qualified Indian lawyer. Before public launch, Katbox should have the final documents reviewed against its exact FSSAI status, tax position, payment model, consumer-commerce obligations, data-protection implementation and final chef contracts.
+            </p>
+          </article>
+        </section>
+      </main>
+
+      <footer>
+        <div className="footer-main">
+          <div className="footer-brand">
+            <a className="brand footer-logo" href="/">
+              <img src={katboxLogo} alt="Katbox" className="brand-logo footer-logo-img" draggable="false" />
+            </a>
+            <p>Homemade flavours.<br />Shared with love.</p>
+          </div>
+          <div className="footer-links">
+            <div>
+              <strong>Explore</strong>
+              <a href="/#services">Homemade Foods</a>
+              <a href="/#services">Meal Boxes</a>
+              <a href="/#services">Catering</a>
+              <a href="/#services">Quick Bites</a>
+            </div>
+            <div>
+              <strong>Katbox</strong>
+              <a href="/#about-app">About the app</a>
+              <a href="/#how-it-works">How it works</a>
+              <a href="/#join">Become a Chef</a>
+              <a href="/#download">Download App</a>
+            </div>
+            <div>
+              <strong>Legal</strong>
+              {legalLinks.map(([key, label, href]) => <a key={key} href={href}>{label}</a>)}
+              <a href={`mailto:${KATBOX_LEGAL.email}`}>Contact</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© 2026 Katbox. Made with ♥ in Hyderabad.</span>
+          <span>Freshly imagined. Locally loved.</span>
+        </div>
+      </footer>
     </div>
   );
 }
 
 function App() {
+  const legalPath = window.location.pathname.replace(/\/$/, '') || '/';
+  if (legalPath === '/privacy-policy') return <LegalPage type="privacy" />;
+  if (legalPath === '/terms-and-conditions') return <LegalPage type="terms" />;
+  if (legalPath === '/refund-cancellation-policy') return <LegalPage type="refund" />;
+  if (legalPath === '/chef-partner-agreement') return <LegalPage type="chef" />;
+
   const [activeFaq, setActiveFaq] = useState(null);
   const [email, setEmail] = useState('');
   const [notice, setNotice] = useState('');
@@ -1075,8 +1711,6 @@ function App() {
     about: '',
   });
   const [joinNotice, setJoinNotice] = useState('');
-  const [joinSuccess, setJoinSuccess] = useState(null);
-  // joinSuccess shape: { role: 'chef' | 'customer', firstName: string }
 
   const [highlightGetApp, setHighlightGetApp] = useState(false);
   const getAppRef = useRef(null);
@@ -1084,52 +1718,13 @@ function App() {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
-  const submitEmail = async (e) => {
+  const submitEmail = (e) => {
     e.preventDefault();
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    if (!normalizedEmail) return;
-
-    setNotice('Saving your email...');
-
-    try {
-      const apiBaseUrl = getApiBaseUrl();
-
-      const response = await fetch(
-        `${apiBaseUrl}/api/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'newsletter',
-            email: normalizedEmail,
-          }),
-        }
-      );
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(
-          data?.message ||
-            'Unable to save your email. Please try again.'
-        );
-      }
-
-      setNotice(
-        'Thanks! We’ll keep you posted about the Katbox launch.'
-      );
-      setEmail('');
-    } catch (error) {
-      console.error('Newsletter submission error:', error);
-      setNotice(
-        error?.message ||
-          'Unable to save your email. Please try again.'
-      );
-    }
+    if (!email.trim()) return;
+    setNotice(
+      'Thanks! We’ll keep you posted about the Katbox launch.'
+    );
+    setEmail('');
   };
 
   const updateJoin = (field) => (e) =>
@@ -1138,112 +1733,39 @@ function App() {
       [field]: e.target.value,
     }));
 
-  const submitJoin = async (e) => {
+  const submitJoin = (e) => {
     e.preventDefault();
 
-    const name = joinForm.name.trim();
-    const email = joinForm.email.trim().toLowerCase();
-    const phone = joinForm.phone.trim();
-    const city = joinForm.city.trim();
-    const about = joinForm.about.trim();
-
-    if (!name || !email || !phone || !city) {
+    if (
+      !joinForm.name.trim() ||
+      !joinForm.email.trim() ||
+      !joinForm.phone.trim() ||
+      !joinForm.city.trim()
+    ) {
       setJoinNotice(
         'Please fill in your name, email, phone and city.'
       );
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setJoinNotice('Please enter a valid email address.');
-      return;
-    }
+    setJoinNotice(
+      joinRole === 'chef'
+        ? `Thank you, ${joinForm.name.split(' ')[0]}! Our chef onboarding team will reach out to you shortly.`
+        : `Welcome aboard, ${joinForm.name.split(' ')[0]}! We’ll notify you the moment Katbox launches near you.`
+    );
 
-    setJoinNotice('Submitting your details...');
-    setJoinSuccess(null);
-
-    try {
-      const apiBaseUrl = getApiBaseUrl();
-
-      const controller = new AbortController();
-      const timeoutId = window.setTimeout(() => {
-        controller.abort();
-      }, 15000);
-
-      let response;
-
-      try {
-        response = await fetch(
-          `${apiBaseUrl}/api/messages`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-            body: JSON.stringify({
-              type: 'join',
-              role: joinRole,
-              name,
-              email,
-              phone,
-              city,
-              about,
-            }),
-            signal: controller.signal,
-          }
-        );
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok || data?.success !== true) {
-        throw new Error(
-          data?.message ||
-            'Unable to submit your details. Please try again.'
-        );
-      }
-
-      // ✅ PREMIUM SUCCESS STATE (replaces old "Welcome aboard" text)
-      const firstName = name.split(' ')[0] || 'friend';
-
-      setJoinNotice('');
-      setJoinSuccess({
-        role: joinRole,
-        firstName,
-      });
-
-      setJoinForm({
-        name: '',
-        email: '',
-        phone: '',
-        city: '',
-        about: '',
-      });
-    } catch (error) {
-      console.error('Join form submission error:', error);
-
-      const message =
-        error?.name === 'AbortError'
-          ? 'The server took too long to respond. Please try again.'
-          : error?.message ||
-            'Unable to submit your details. Please try again.';
-
-      setJoinNotice(message);
-    }
-  };
-
-  const resetJoinSuccess = () => {
-    setJoinSuccess(null);
-    setJoinNotice('');
+    setJoinForm({
+      name: '',
+      email: '',
+      phone: '',
+      city: '',
+      about: '',
+    });
   };
 
   const goToJoinAs = (role) => {
     setJoinRole(role);
     setJoinNotice('');
-    setJoinSuccess(null);
     const el = document.getElementById('join');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1793,7 +2315,6 @@ function App() {
                 onClick={() => {
                   setJoinRole('customer');
                   setJoinNotice('');
-                  setJoinSuccess(null);
                 }}
               >
                 <span className="role-emoji">🍽️</span>
@@ -1813,7 +2334,6 @@ function App() {
                 onClick={() => {
                   setJoinRole('chef');
                   setJoinNotice('');
-                  setJoinSuccess(null);
                 }}
               >
                 <span className="role-emoji">👩‍🍳</span>
@@ -1825,118 +2345,110 @@ function App() {
 
             </div>
 
-            {joinSuccess ? (
-              <JoinSuccessCard
-                role={joinSuccess.role}
-                firstName={joinSuccess.firstName}
-                onReset={resetJoinSuccess}
-              />
-            ) : (
-              <form className="join-form" onSubmit={submitJoin}>
+            <form className="join-form" onSubmit={submitJoin}>
 
-                <div className="join-row">
-
-                  <label className="join-field">
-                    <span>Full name</span>
-                    <input
-                      type="text"
-                      value={joinForm.name}
-                      onChange={updateJoin('name')}
-                      placeholder={
-                        joinRole === 'chef'
-                          ? 'e.g. Lakshmi Reddy'
-                          : 'e.g. Aarav Sharma'
-                      }
-                      required
-                    />
-                  </label>
-
-                  <label className="join-field">
-                    <span>Email address</span>
-                    <input
-                      type="email"
-                      value={joinForm.email}
-                      onChange={updateJoin('email')}
-                      placeholder="you@example.com"
-                      required
-                    />
-                  </label>
-
-                </div>
-
-                <div className="join-row">
-
-                  <label className="join-field">
-                    <span>Phone number</span>
-                    <input
-                      type="tel"
-                      value={joinForm.phone}
-                      onChange={updateJoin('phone')}
-                      placeholder="+91 98765 43210"
-                      required
-                    />
-                  </label>
-
-                  <label className="join-field">
-                    <span>City / Area</span>
-                    <input
-                      type="text"
-                      value={joinForm.city}
-                      onChange={updateJoin('city')}
-                      placeholder={
-                        joinRole === 'chef'
-                          ? 'e.g. Banjara Hills, Hyderabad'
-                          : 'e.g. Gachibowli, Hyderabad'
-                      }
-                      required
-                    />
-                  </label>
-
-                </div>
+              <div className="join-row">
 
                 <label className="join-field">
-                  <span>
-                    {joinRole === 'chef'
-                      ? 'Tell us about your cooking'
-                      : 'Anything we should know?'}
-                  </span>
-                  <textarea
-                    rows="4"
-                    value={joinForm.about}
-                    onChange={updateJoin('about')}
+                  <span>Full name</span>
+                  <input
+                    type="text"
+                    value={joinForm.name}
+                    onChange={updateJoin('name')}
                     placeholder={
                       joinRole === 'chef'
-                        ? 'What do you love to cook? Any signature dishes, cuisines or specialities?'
-                        : 'Dietary preferences, favourite cuisines or delivery notes?'
+                        ? 'e.g. Lakshmi Reddy'
+                        : 'e.g. Aarav Sharma'
                     }
+                    required
                   />
                 </label>
 
-                <button
-                  className="primary-button join-submit"
-                  type="submit"
-                >
+                <label className="join-field">
+                  <span>Email address</span>
+                  <input
+                    type="email"
+                    value={joinForm.email}
+                    onChange={updateJoin('email')}
+                    placeholder="you@example.com"
+                    required
+                  />
+                </label>
+
+              </div>
+
+              <div className="join-row">
+
+                <label className="join-field">
+                  <span>Phone number</span>
+                  <input
+                    type="tel"
+                    value={joinForm.phone}
+                    onChange={updateJoin('phone')}
+                    placeholder="+91 98765 43210"
+                    required
+                  />
+                </label>
+
+                <label className="join-field">
+                  <span>City / Area</span>
+                  <input
+                    type="text"
+                    value={joinForm.city}
+                    onChange={updateJoin('city')}
+                    placeholder={
+                      joinRole === 'chef'
+                        ? 'e.g. Banjara Hills, Hyderabad'
+                        : 'e.g. Gachibowli, Hyderabad'
+                    }
+                    required
+                  />
+                </label>
+
+              </div>
+
+              <label className="join-field">
+                <span>
                   {joinRole === 'chef'
-                    ? 'Apply to cook with Katbox'
-                    : 'Join the Katbox waitlist'}
-                  <span>→</span>
-                </button>
+                    ? 'Tell us about your cooking'
+                    : 'Anything we should know?'}
+                </span>
+                <textarea
+                  rows="4"
+                  value={joinForm.about}
+                  onChange={updateJoin('about')}
+                  placeholder={
+                    joinRole === 'chef'
+                      ? 'What do you love to cook? Any signature dishes, cuisines or specialities?'
+                      : 'Dietary preferences, favourite cuisines or delivery notes?'
+                  }
+                />
+              </label>
 
-                {joinNotice && (
-                  <p className="join-notice">
-                    {joinNotice}
-                  </p>
-                )}
+              <button
+                className="primary-button join-submit"
+                type="submit"
+              >
+                {joinRole === 'chef'
+                  ? 'Apply to cook with Katbox'
+                  : 'Join the Katbox waitlist'}
+                <span>→</span>
+              </button>
 
-                <p className="join-disclaimer">
-                  By submitting, you agree to be contacted
-                  by the Katbox team about launch updates
-                  and onboarding. We never share your
-                  details with third parties.
+              {joinNotice && (
+                <p className="join-notice">
+                  {joinNotice}
                 </p>
+              )}
 
-              </form>
-            )}
+              <p className="join-disclaimer">
+                By submitting, you agree to be contacted
+                by the Katbox team about launch updates
+                and onboarding. We never share your
+                details with third parties.
+              </p>
+
+            </form>
 
           </div>
 
@@ -2265,19 +2777,23 @@ function App() {
                 Legal
               </strong>
 
-              <a href="#">
+              <a href="/privacy-policy">
                 Privacy Policy
               </a>
 
-              <a href="#">
+              <a href="/terms-and-conditions">
                 Terms & Conditions
               </a>
 
-              <a href="#">
+              <a href="/refund-cancellation-policy">
                 Refund Policy
               </a>
 
-              <a href="#">
+              <a href="/chef-partner-agreement">
+                Chef Partner Agreement
+              </a>
+
+              <a href="mailto:katbox.in@gmail.com">
                 Contact
               </a>
 
