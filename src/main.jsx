@@ -47,6 +47,26 @@ const apkUrl =
 
 const PLAY_STORE_LIVE = false;
 
+const getApiBaseUrl = () => {
+  const configuredUrl = String(import.meta.env.VITE_API_URL || '').trim();
+
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+    return 'http://localhost:4000';
+  }
+
+  if (typeof window !== 'undefined' && window.location?.hostname === '127.0.0.1') {
+    return 'http://localhost:4000';
+  }
+
+  throw new Error(
+    'Katbox API URL is not configured. Set VITE_API_URL to your production backend URL.'
+  );
+};
+
 /* =========================================================
    EXPLORE KATBOX — SERVICE CARDS
    ========================================================= */
@@ -1723,13 +1743,60 @@ function HomePage() {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
-  const submitEmail = (e) => {
+  const submitEmail = async (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setNotice(
-      'Thanks! We’ll keep you posted about the Katbox launch.'
-    );
-    setEmail('');
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) return;
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setNotice('Please enter a valid email address.');
+      return;
+    }
+
+    setNotice('Saving your email...');
+
+    try {
+      const apiBaseUrl = getApiBaseUrl();
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'newsletter',
+            email: normalizedEmail,
+          }),
+          signal: controller.signal,
+        });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data?.success !== true) {
+        throw new Error(
+          data?.message || 'Unable to save your email. Please try again.'
+        );
+      }
+
+      setNotice('Thanks! We’ll keep you posted about the Katbox launch.');
+      setEmail('');
+    } catch (error) {
+      console.error('Newsletter submission error:', error);
+      setNotice(
+        error?.name === 'AbortError'
+          ? 'The server took too long to respond. Please try again.'
+          : error?.message || 'Unable to save your email. Please try again.'
+      );
+    }
   };
 
   const updateJoin = (field) => (e) =>
@@ -1738,34 +1805,84 @@ function HomePage() {
       [field]: e.target.value,
     }));
 
-  const submitJoin = (e) => {
+  const submitJoin = async (e) => {
     e.preventDefault();
 
-    if (
-      !joinForm.name.trim() ||
-      !joinForm.email.trim() ||
-      !joinForm.phone.trim() ||
-      !joinForm.city.trim()
-    ) {
-      setJoinNotice(
-        'Please fill in your name, email, phone and city.'
-      );
+    const name = joinForm.name.trim();
+    const email = joinForm.email.trim().toLowerCase();
+    const phone = joinForm.phone.trim();
+    const city = joinForm.city.trim();
+    const about = joinForm.about.trim();
+
+    if (!name || !email || !phone || !city) {
+      setJoinNotice('Please fill in your name, email, phone and city.');
       return;
     }
 
-    setJoinNotice(
-      joinRole === 'chef'
-        ? `Thank you, ${joinForm.name.split(' ')[0]}! Our chef onboarding team will reach out to you shortly.`
-        : `Welcome aboard, ${joinForm.name.split(' ')[0]}! We’ll notify you the moment Katbox launches near you.`
-    );
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setJoinNotice('Please enter a valid email address.');
+      return;
+    }
 
-    setJoinForm({
-      name: '',
-      email: '',
-      phone: '',
-      city: '',
-      about: '',
-    });
+    setJoinNotice('Submitting your details...');
+
+    try {
+      const apiBaseUrl = getApiBaseUrl();
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'join',
+            role: joinRole,
+            name,
+            email,
+            phone,
+            city,
+            about,
+          }),
+          signal: controller.signal,
+        });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data?.success !== true) {
+        throw new Error(
+          data?.message || 'Unable to submit your details. Please try again.'
+        );
+      }
+
+      setJoinNotice(
+        joinRole === 'chef'
+          ? `Thank you, ${name.split(' ')[0]}! Your chef application has been received.`
+          : `Welcome aboard, ${name.split(' ')[0]}! Your details have been received.`
+      );
+
+      setJoinForm({
+        name: '',
+        email: '',
+        phone: '',
+        city: '',
+        about: '',
+      });
+    } catch (error) {
+      console.error('Join form submission error:', error);
+      setJoinNotice(
+        error?.name === 'AbortError'
+          ? 'The server took too long to respond. Please try again.'
+          : error?.message || 'Unable to submit your details. Please try again.'
+      );
+    }
   };
 
   const goToJoinAs = (role) => {
