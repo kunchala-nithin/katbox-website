@@ -1572,7 +1572,7 @@ function LegalPage({ type }) {
     <div className="site legal-site">
       <header className="navbar legal-navbar">
         <a className="brand legal-brand" href="/" aria-label="Katbox home">
-          <span className="brand-text legal-brand-text">Katbox</span>
+          <img src={downloadSplash} alt="Katbox" className="brand-logo legal-header-logo" draggable="false" />
         </a>
         <nav className="nav-links legal-nav-links">
           <a href="/">Home</a>
@@ -1691,13 +1691,18 @@ function LegalPage({ type }) {
   );
 }
 
-function App() {
+function LegalRoute() {
   const legalPath = window.location.pathname.replace(/\/$/, '') || '/';
+
   if (legalPath === '/privacy-policy') return <LegalPage type="privacy" />;
   if (legalPath === '/terms-and-conditions') return <LegalPage type="terms" />;
   if (legalPath === '/refund-cancellation-policy') return <LegalPage type="refund" />;
   if (legalPath === '/chef-partner-agreement') return <LegalPage type="chef" />;
 
+  return <HomePage />;
+}
+
+function HomePage() {
   const [activeFaq, setActiveFaq] = useState(null);
   const [email, setEmail] = useState('');
   const [notice, setNotice] = useState('');
@@ -2835,5 +2840,5 @@ function App() {
 createRoot(
   document.getElementById('root')
 ).render(
-  <App />
+  <LegalRoute />
 );
