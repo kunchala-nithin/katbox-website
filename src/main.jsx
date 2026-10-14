@@ -1591,8 +1591,35 @@ function LegalPage({ type }) {
   return (
     <div className="site legal-site">
       <header className="navbar legal-navbar">
-        <a className="brand legal-brand" href="/" aria-label="Katbox home">
-          <img src={downloadSplash} alt="Katbox" className="brand-logo legal-header-logo" draggable="false" />
+        <a
+          className="brand legal-brand"
+          href="/"
+          aria-label="Katbox home"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            boxShadow: 'none',
+            padding: 0,
+            borderRadius: 0,
+          }}
+        >
+          <img
+            src={katboxLogo}
+            alt="Katbox"
+            className="brand-logo legal-header-logo"
+            draggable="false"
+            style={{
+              width: '128px',
+              height: 'auto',
+              maxWidth: '128px',
+              maxHeight: '52px',
+              objectFit: 'contain',
+              background: 'transparent',
+              borderRadius: 0,
+              boxShadow: 'none',
+              filter: 'none',
+            }}
+          />
         </a>
         <nav className="nav-links legal-nav-links">
           <a href="/">Home</a>
