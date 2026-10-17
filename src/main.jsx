@@ -1109,19 +1109,28 @@ const legalContent = {
         ]
       },
       {
-        title: '12. Children',
+        title: '12. Account deletion and associated data',
+        body: [
+          'You may request deletion of your Katbox account through the account-deletion option in the mobile app when available, or through our public account-deletion instructions at https://katbox.in/delete-account. If you cannot access the app, email katbox.in@gmail.com from your registered email address with the subject “Delete My Katbox Account” and include your registered mobile number so we can verify the request.',
+          'After we verify a request, we will delete the account and associated personal information that is no longer needed for the operation of the service or another lawful purpose. We may ask for reasonable additional information to confirm your identity. Do not email passwords, OTPs, UPI PINs, card details or other authentication secrets.',
+          'Some records may be retained where necessary or permitted for legal, tax, accounting, payment, order fulfilment, settlement, dispute-resolution, fraud-prevention, food-safety or regulatory purposes. Where appropriate, personal identifiers in retained records may be removed or anonymised. If an account has an active order, booking, chef commitment or unresolved payment/refund, we may need to resolve or safely handle that matter before completing deletion. We will explain any material limitation to the requester.',
+          'We aim to acknowledge and process verified requests within 7 business days where practicable. If a request requires additional verification or an unresolved order or legal retention issue affects processing, we will communicate the next steps. Data held by independent third-party providers may be subject to their own lawful retention practices; Katbox will take appropriate steps for data processed on its behalf.'
+        ]
+      },
+      {
+        title: '13. Children',
         body: [
           'Katbox does not intentionally design its services to collect personal information from children in circumstances where a legally required consent is unavailable. If you believe a child has provided personal information improperly, contact us so that we can review the information and take appropriate action under applicable law.'
         ]
       },
       {
-        title: '13. International processing and service-provider locations',
+        title: '14. International processing and service-provider locations',
         body: [
           'Some technology or infrastructure providers used by Katbox may process or store information in locations outside Telangana or India. Where such processing occurs, Katbox will take the steps required by applicable law and the relevant contractual or technical arrangements.'
         ]
       },
       {
-        title: '14. Changes to this policy',
+        title: '15. Changes to this policy',
         body: [
           'Katbox may update this policy when its services, technology, business model or legal obligations change. Material changes will be reflected by updating this page and its last-updated date. Continued use after an updated policy takes effect will be subject to the updated policy to the extent permitted by law.'
         ]
@@ -1586,6 +1595,7 @@ function LegalPage({ type }) {
     ['terms', 'Terms & Conditions', '/terms-and-conditions'],
     ['refund', 'Refund & Cancellation', '/refund-cancellation-policy'],
     ['chef', 'Chef Partner Agreement', '/chef-partner-agreement'],
+    ['delete-account', 'Delete Account', '/delete-account'],
   ];
 
   return (
@@ -1738,6 +1748,79 @@ function LegalPage({ type }) {
   );
 }
 
+function DeleteAccountPage() {
+  useEffect(() => {
+    document.title = 'Delete Account | Katbox';
+    window.scrollTo(0, 0);
+  }, []);
+
+  const subject = 'Delete My Katbox Account';
+  const body = [
+    'I request deletion of my Katbox account and associated personal data.',
+    '',
+    'Registered name:',
+    'Registered mobile number:',
+    'Registered email address:',
+    'Account type (customer/chef):',
+    '',
+    'I understand Katbox may verify my identity and may need to retain limited records where required or permitted by law.'
+  ].join('\n');
+  const mailto = `mailto:${KATBOX_LEGAL.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  return (
+    <div className="site legal-site">
+      <header className="navbar legal-navbar">
+        <a className="brand legal-brand" href="/" aria-label="Katbox home" style={{ background: 'transparent', border: 'none', boxShadow: 'none', padding: 0, borderRadius: 0 }}>
+          <img src={katboxLogo} alt="Katbox" className="brand-logo legal-header-logo" draggable="false" style={{ width: '128px', height: 'auto', maxWidth: '128px', maxHeight: '52px' }} />
+        </a>
+        <nav className="nav-links"><a href="/">Home</a><a href="/privacy-policy">Privacy Policy</a></nav>
+        <div className="nav-actions"><a className="text-button" href={`mailto:${KATBOX_LEGAL.email}`}>Contact</a></div>
+      </header>
+      <main className="legal-main delete-account-main">
+        <section className="legal-hero">
+          <div className="legal-hero-inner">
+            <span className="legal-eyebrow">ACCOUNT &amp; PRIVACY</span>
+            <h1>Request account deletion.</h1>
+            <p>We respect your choice. Use the steps below to request deletion of your Katbox account and associated personal data.</p>
+            <div className="legal-meta"><span>Katbox account support</span><span>Hyderabad, Telangana, India</span></div>
+          </div>
+        </section>
+        <section className="delete-account-layout">
+          <article className="delete-account-card">
+            <div className="delete-account-icon" aria-hidden="true">×</div>
+            <h2>How to request deletion</h2>
+            <ol>
+              <li>Send the request from the email address registered to your Katbox account, if you have one.</li>
+              <li>Include your registered mobile number and tell us whether you are a customer or chef.</li>
+              <li>We may contact you to verify the request before processing it.</li>
+            </ol>
+            <a className="primary-button delete-account-cta" href={mailto}>Email a deletion request <span aria-hidden="true">↗</span></a>
+            <p className="delete-account-contact">If your device does not open an email app, send your request manually to <a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a> with the subject <strong>“{subject}”</strong>.</p>
+          </article>
+          <article className="delete-account-card delete-account-details">
+            <h2>What happens next?</h2>
+            <ul>
+              <li>We aim to process verified requests within 7 business days where practicable.</li>
+              <li>Account profile data and associated personal information that is no longer needed will be deleted.</li>
+              <li>Some order, payment, settlement, tax, dispute, fraud-prevention or food-safety records may need to be retained where required or permitted by law.</li>
+              <li>Active orders, chef bookings, unresolved refunds or settlements may need to be safely resolved before deletion is completed.</li>
+            </ul>
+            <p>Read the <a href="/privacy-policy">Privacy Policy</a> for more information about data retention and privacy requests.</p>
+            <p>Never include passwords, OTPs, UPI PINs, card details or other authentication secrets in your request.</p>
+          </article>
+        </section>
+      </main>
+      <footer>
+        <div className="footer-main">
+          <div className="footer-brand"><a className="brand footer-logo" href="/"><img src={katboxLogo} alt="Katbox" className="brand-logo footer-logo-img" draggable="false" /></a><p>Homemade flavours.<br />Shared with love.</p></div>
+          <div className="footer-links"><div><strong>Legal</strong><a href="/privacy-policy">Privacy Policy</a><a href="/terms-and-conditions">Terms &amp; Conditions</a><a href="/delete-account">Delete Account</a></div><div><strong>Support</strong><a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a><a href={`tel:${KATBOX_LEGAL.phone.replace(/[^+\d]/g, '')}`}>{KATBOX_LEGAL.phone}</a></div></div>
+        </div>
+        <div className="footer-bottom"><span>© 2026 Katbox. Made with ♥ in Hyderabad.</span><span>Freshly imagined. Locally loved.</span></div>
+      </footer>
+    </div>
+  );
+}
+
 function LegalRoute() {
   const legalPath = window.location.pathname.replace(/\/$/, '') || '/';
 
@@ -1745,6 +1828,7 @@ function LegalRoute() {
   if (legalPath === '/terms-and-conditions') return <LegalPage type="terms" />;
   if (legalPath === '/refund-cancellation-policy') return <LegalPage type="refund" />;
   if (legalPath === '/chef-partner-agreement') return <LegalPage type="chef" />;
+  if (legalPath === '/delete-account') return <DeleteAccountPage />;
 
   return <HomePage />;
 }
@@ -2940,6 +3024,10 @@ function HomePage() {
 
               <a href="/chef-partner-agreement">
                 Chef Partner Agreement
+              </a>
+
+              <a href="/delete-account">
+                Delete Account
               </a>
 
               <a href="mailto:katbox.in@gmail.com">
