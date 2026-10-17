@@ -1794,7 +1794,8 @@ function DeleteAccountPage() {
               <li>Include your registered mobile number and tell us whether you are a customer or chef.</li>
               <li>We may contact you to verify the request before processing it.</li>
             </ol>
-            <a className="primary-button delete-account-cta" href={mailto}>Email a deletion request <span aria-hidden="true">↗</span></a>
+            <a className="primary-button delete-account-cta" href={mailto} aria-label="Delete Account — open a prefilled account deletion request email">Delete Account <span aria-hidden="true">↗</span></a>
+            <p className="delete-account-contact">This button opens a prefilled email request so Katbox can verify account ownership before processing deletion.</p>
             <p className="delete-account-contact">If your device does not open an email app, send your request manually to <a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a> with the subject <strong>“{subject}”</strong>.</p>
           </article>
           <article className="delete-account-card delete-account-details">
