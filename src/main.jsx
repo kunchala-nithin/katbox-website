@@ -1749,23 +1749,19 @@ function LegalPage({ type }) {
 }
 
 function DeleteAccountPage() {
+  const [deleteDialog, setDeleteDialog] = useState('closed');
+
   useEffect(() => {
     document.title = 'Delete Account | Katbox';
     window.scrollTo(0, 0);
   }, []);
 
-  const subject = 'Delete My Katbox Account';
-  const body = [
-    'I request deletion of my Katbox account and associated personal data.',
-    '',
-    'Registered name:',
-    'Registered mobile number:',
-    'Registered email address:',
-    'Account type (customer/chef):',
-    '',
-    'I understand Katbox may verify my identity and may need to retain limited records where required or permitted by law.'
-  ].join('\n');
-  const mailto = `mailto:${KATBOX_LEGAL.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const handleConfirmDelete = () => {
+    // Do not open an email app or redirect. The public website is not
+    // yet connected to a verified account-deletion API, so it must not
+    // claim that an account was deleted or that a request was submitted.
+    setDeleteDialog('not-connected');
+  };
 
   return (
     <div className="site legal-site">
@@ -1790,32 +1786,93 @@ function DeleteAccountPage() {
             <div className="delete-account-icon" aria-hidden="true">×</div>
             <h2>How to request deletion</h2>
             <ol>
-              <li>Send the request from the email address registered to your Katbox account, if you have one.</li>
-              <li>Include your registered mobile number and tell us whether you are a customer or chef.</li>
-              <li>We may contact you to verify the request before processing it.</li>
+              <li>Use the Delete Account button below to review the confirmation.</li>
+              <li>Katbox must verify account ownership before any account can be deleted.</li>
+              <li>Some order, payment or legal records may need to be retained where required or permitted by law.</li>
             </ol>
-            <a className="primary-button delete-account-cta" href={mailto} aria-label="Delete Account — open a prefilled account deletion request email">Delete Account <span aria-hidden="true">↗</span></a>
-            <p className="delete-account-contact">This button opens a prefilled email request so Katbox can verify account ownership before processing deletion.</p>
-            <p className="delete-account-contact">If your device does not open an email app, send your request manually to <a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a> with the subject <strong>“{subject}”</strong>.</p>
+            <button
+              className="primary-button delete-account-cta delete-account-button"
+              type="button"
+              onClick={() => setDeleteDialog('confirm')}
+              aria-label="Open account deletion confirmation"
+            >
+              Delete Account <span aria-hidden="true">×</span>
+            </button>
+            <p className="delete-account-contact">Click Delete Account to review the confirmation. This page will not redirect you to an email app.</p>
+            <p className="delete-account-contact">For help, contact <a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a>. Online account deletion will be enabled after the secure deletion service is connected.</p>
           </article>
           <article className="delete-account-card delete-account-details">
             <h2>What happens next?</h2>
             <ul>
-              <li>We aim to process verified requests within 7 business days where practicable.</li>
+              <li>Verified deletion requests should be processed within a reasonable timeframe, subject to applicable requirements.</li>
               <li>Account profile data and associated personal information that is no longer needed will be deleted.</li>
               <li>Some order, payment, settlement, tax, dispute, fraud-prevention or food-safety records may need to be retained where required or permitted by law.</li>
               <li>Active orders, chef bookings, unresolved refunds or settlements may need to be safely resolved before deletion is completed.</li>
             </ul>
             <p>Read the <a href="/privacy-policy">Privacy Policy</a> for more information about data retention and privacy requests.</p>
-            <p>Never include passwords, OTPs, UPI PINs, card details or other authentication secrets in your request.</p>
+            <p>Never include passwords, OTPs, UPI PINs, card details or other authentication secrets in a request.</p>
           </article>
         </section>
       </main>
-      <footer>
-        <div className="footer-main">
-          <div className="footer-brand"><a className="brand footer-logo" href="/"><img src={katboxLogo} alt="Katbox" className="brand-logo footer-logo-img" draggable="false" /></a><p>Homemade flavours.<br />Shared with love.</p></div>
-          <div className="footer-links"><div><strong>Legal</strong><a href="/privacy-policy">Privacy Policy</a><a href="/terms-and-conditions">Terms &amp; Conditions</a><a href="/delete-account">Delete Account</a></div><div><strong>Support</strong><a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a><a href={`tel:${KATBOX_LEGAL.phone.replace(/[^+\d]/g, '')}`}>{KATBOX_LEGAL.phone}</a></div></div>
+
+      {deleteDialog !== 'closed' && (
+        <div
+          className="delete-account-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setDeleteDialog('closed');
+          }}
+        >
+          <section
+            className="delete-account-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-account-modal-title"
+            aria-describedby="delete-account-modal-description"
+          >
+            <button
+              type="button"
+              className="delete-account-modal-close"
+              aria-label="Close dialog"
+              onClick={() => setDeleteDialog('closed')}
+            >
+              ×
+            </button>
+            <div className="delete-account-modal-icon" aria-hidden="true">!</div>
+            {deleteDialog === 'confirm' ? (
+              <>
+                <h2 id="delete-account-modal-title">Are you sure you want to delete your account?</h2>
+                <p id="delete-account-modal-description">
+                  Account deletion is permanent and may remove your profile and associated personal information. Certain order or transaction records may need to be retained where required by law.
+                </p>
+                <div className="delete-account-modal-actions">
+                  <button type="button" className="delete-account-cancel-button" onClick={() => setDeleteDialog('closed')}>
+                    Cancel
+                  </button>
+                  <button type="button" className="delete-account-confirm-button" onClick={handleConfirmDelete}>
+                    Delete Account
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 id="delete-account-modal-title">Online deletion isn't connected yet</h2>
+                <p id="delete-account-modal-description">
+                  No account has been deleted and no request has been submitted. Katbox must connect a secure account-deletion service and verify your identity before this website can process deletion.
+                </p>
+                <div className="delete-account-modal-actions delete-account-modal-actions-single">
+                  <button type="button" className="delete-account-cancel-button" onClick={() => setDeleteDialog('closed')}>
+                    I Understand
+                  </button>
+                </div>
+              </>
+            )}
+          </section>
         </div>
+      )}
+
+      <footer>
+        <div className="footer-main"><div className="footer-brand"><a className="brand footer-logo" href="/"><img src={katboxLogo} alt="Katbox" className="brand-logo footer-logo-img" draggable="false" /></a><p>Homemade flavours.<br />Shared with love.</p></div><div className="footer-links"><div><strong>Legal</strong><a href="/privacy-policy">Privacy Policy</a><a href="/terms-and-conditions">Terms &amp; Conditions</a><a href="/delete-account">Delete Account</a></div><div><strong>Support</strong><a href={`mailto:${KATBOX_LEGAL.email}`}>{KATBOX_LEGAL.email}</a><a href={`tel:${KATBOX_LEGAL.phone.replace(/[^+\d]/g, '')}`}>{KATBOX_LEGAL.phone}</a></div></div></div>
         <div className="footer-bottom"><span>© 2026 Katbox. Made with ♥ in Hyderabad.</span><span>Freshly imagined. Locally loved.</span></div>
       </footer>
     </div>
