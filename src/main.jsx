@@ -43,7 +43,7 @@ const googlePlayUrl =
   'https://play.google.com/store/apps/details?id=com.katbox.app';
 
 const apkUrl =
-  'https://github.com/kunchala-nithin/katbox-app/releases/download/v1.0.0/application-121c16f2-4bfc-4a82-9ebd-491f0b3bc108.apk';
+  'https://github.com/kunchala-nithin/katbox-app/releases/download/v1.0.0/application-6c536503-2cb2-4b5d-af4e-b8784a6c3cdb.apk';
 
 const PLAY_STORE_LIVE = false;
 
